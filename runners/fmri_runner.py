@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.linear_model import Ridge
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import scale
 
 from models.carefl import CAREFL
@@ -50,6 +51,11 @@ def run_fmri(args, config):
         train_dat = scale_dat[subject_int_ids[k]['rest']][:, rois]
         intervene_dat = scale_dat[subject_int_ids[k]['stim']][:, rois]
 
+        # Saving the traing and intervention data in a filename with the subject id
+        np.savetxt('/tmp/train_data_' + str(k) + '.csv', train_dat, delimiter=',')
+        np.savetxt('/tmp/intervene_data_' + str(k) + '.csv', intervene_dat, delimiter=',')
+
+
         # ------ run models
         mod = CAREFL(config)
         mod.fit_to_sem(train_dat)
@@ -57,7 +63,7 @@ def run_fmri(args, config):
         int_pred = np.array([mod.predict_intervention(x, n_samples=500)[1][0, 1] for x in xvals])
 
         ## compare with GPs and Linear Regression
-        lm = Ridge()  # LinearRegression()
+        lm = LinearRegression() #Ridge()  
         lm.fit(X=train_dat[:, 0].reshape((-1, 1)), y=train_dat[:, 1])
         # kernel = C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
         kernel = 1.0 * RBF(1.0)

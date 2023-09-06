@@ -74,6 +74,7 @@ def intervention_sem(n_obs, dim=4, seed=0, noise_dist='laplace',
         # effects
         if nonlin == 'poly':
             coeffs = np.random.uniform(.1, .9, 2) if random else [.5, .5]
+            print("Coeffs: ", coeffs)
             X_3 = X_1 + coeffs[0] * (X_2 * X_2 * X_2)
             X_4 = -X_2 + coeffs[1] * (X_1 * X_1)
             if multiplicative:

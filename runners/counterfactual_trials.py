@@ -14,9 +14,9 @@ from models.carefl import CAREFL
 def counterfactuals(args, config):
     # we generate the same SEM as in the intervention example
 
-    X, _, _ = intervention_sem(n_obs=2500, seed=0, random=False)
-    (_, _, X3_std, X4_std) = X.std(axis=0)
-    X /= np.array([1, 1, X3_std, X4_std])
+    X_org, _, _ = intervention_sem(n_obs=2500, seed=0, random=False)
+    (_, _, X3_std, X4_std) = X_org.std(axis=0)
+    X = X_org / np.array([1, 1, X3_std, X4_std])
     # fit CAReFl to the data
     mod = CAREFL(config)
     mod.fit_to_sem(X)
@@ -33,6 +33,25 @@ def counterfactuals(args, config):
     # this is the random value of 4D random varibale x we observe. Now we plot the counterfactual
     # given x_0 had been other values
     xObs = gen_observation(N)  # should be (2.00, 1.50, 0.81, −0.28)
+    #in the paper (2.00, 1.50, 0.81, −0.28)
+    #in realiy array([[ 2.        ,  1.5       ,  0.84645028, -0.26158623]])
+    ### Hack Attack ###
+    print("An numpy array of observational data, has been created")
+    print(X)
+    print(X.mean(axis=0))
+    print(X.std(axis=0))
+    #writes the data to a csv file
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/X.csv", X, delimiter=",")
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/X_org.csv", X_org, delimiter=",")
+    print(xObs)
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/xObs.csv", xObs, delimiter=",")
+    
+    #Is consitent same as xObs
+    mod.predict_counterfactual(x_obs=xObs, cf_val=xObs[0,0], iidx=0)  
+    gen_observation(xObs)
+    
+    
+    #### End of Hack Attack ####
 
     # PLOT
     xvals = np.arange(-3, 3, .1)
@@ -43,6 +62,13 @@ def counterfactuals(args, config):
     # see quality of counterfactual predictions for X_4
     xCF_true = [gen_observation(np.hstack((x, N[0, 1:])).reshape((1, 4)))[0, 3] for x in xvals]
     xCF_pred = [mod.predict_counterfactual(x_obs=xObs, cf_val=x, iidx=0)[0, 3] for x in xvals]
+    ### Hack Attack do on X1 ###
+    print("xCF_true: ", xCF_true)
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/xCF_onX1_true.csv", xCF_true, delimiter=",")
+    print("xCF_pred: ", xCF_pred)
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/xCF_onX1_pred.csv", xCF_pred, delimiter=",")
+    ### Hack Attack do on X1 ###
+
     ax1.plot(xvals, xCF_true, label=r'True $\mathbb{E} [{X_4}_{X_1 \leftarrow \alpha} (n) ] $', linewidth=3,
              linestyle='-.')
     ax1.plot(xvals, xCF_pred, label=r'Predicted $\mathbb{E} [{X_4}_{X_1 \leftarrow \alpha} (n) ] $', linewidth=3,
@@ -53,6 +79,13 @@ def counterfactuals(args, config):
     # see quality of counterfactual predictions for X_3
     xCF_true = [gen_observation(np.hstack((N[0, 0], x, N[0, 2:])).reshape((1, 4)))[0, 2] for x in xvals]
     xCF_pred = [mod.predict_counterfactual(x_obs=xObs, cf_val=x, iidx=1)[0, 2] for x in xvals]
+     ### Hack Attack do on X1 ###
+    print("xCF_true: ", xCF_true)
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/xCF_onX2_true.csv", xCF_true, delimiter=",")
+    print("xCF_pred: ", xCF_pred)
+    np.savetxt("/Users/oli/Documents/GitHub/causality/data/CAREFL_CF/xCF_onX2_pred.csv", xCF_pred, delimiter=",")
+    ### Hack Attack do on X1 ###
+    
     ax2.plot(xvals, xCF_true, label=r'True $\mathbb{E} [{X_3}_{X_2 \leftarrow \alpha} (n) ] $', linewidth=3,
              linestyle='-.')
     ax2.plot(xvals, xCF_pred, label=r'Predicted $\mathbb{E} [{X_3}_{X_2 \leftarrow \alpha} (n) ] $', linewidth=3,

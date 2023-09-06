@@ -102,6 +102,7 @@ class AffineCL(nn.Module):
 
     def __init__(self, dim, parity=False, net_class=MLP4, nh=24, scale=True, shift=True,
                  scale_base=False, shift_base=False, checkerboard=False):
+        print("Parity: ", parity)
         super().__init__()
         self.dim = dim
         self.parity = parity

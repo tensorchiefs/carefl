@@ -41,34 +41,44 @@ def run_interventions(args, config):
     # generate coeffcients for equation (12), and data from that SEM
     data, coeffs, dag = intervention_sem(n_obs, dim=4, seed=config.data.seed, random=config.data.random,
                                          multiplicative=config.data.multiplicative)
-    print("fitting a {} model".format(model))
+    print("fitting a {} model using seed {}".format(model, config.data.seed))
     # fit to an affine autoregressive flow or ANM with gp/linear functions
     mod = CAREFL(config) if model == 'carefl' else ANM(method=model)
-    mod.fit_to_sem(data, dag)
+    loss = mod.fit_to_sem(data, dag, return_scores=True)
+    print("loss: {}".format(loss))
     # intervene on X_1 and get a sample of {x | do(X_1=a)} for a in [-3, 3]
-    avals = np.arange(-3, 3, .1)
+    #avals = np.arange(-3, 3, .1)
     x_int_sample = []
     x_int_exp = []
+    avals = np.arange(-2.5, 2.5, 0.5)
+    # store results
+    results = {}
     for a in avals:
-        res = mod.predict_intervention(a, n_samples=20, iidx=0)
+        res = mod.predict_intervention(a, n_samples=20000, iidx=0)
         x_int_sample.append(res[0].mean(axis=0))
         x_int_exp.append(res[1].mean(axis=0))
+        results[f"X_int_{a}"] = res[2]
     x_int_sample = np.array(x_int_sample)
     x_int_exp = np.array(x_int_exp)
+    #  OD Hackattach store sample from the interv
+    
     # compute the MSE between the true E[x_3|x_1=a] to the empirical expectation from the sample
     # we know that the true E[x_3|x_1=a] = a
-    mse_x3 = np.mean((x_int_sample[:, 2] - avals) ** 2)
-    mse_x3e = np.mean((x_int_exp[:, 2] - avals) ** 2)
+    mse_x3 = np.mean((x_int_sample[:, 2] - avals) ** 2) #The correct value is avals
+    mse_x3e = np.mean((x_int_exp[:, 2] - avals) ** 2) #Wird dadurch erzeugt, dass man die latenten Variablen (z(do(x1=a)), 0,0,0)   
     # do the same for x_4; true E[x_4|x_1=a] = c_1*a^2
     mse_x4 = np.mean((x_int_sample[:, 3] - coeffs[1] * avals * avals) ** 2)
     mse_x4e = np.mean((x_int_exp[:, 3] - coeffs[1] * avals * avals) ** 2)
     # store results
-    results = {}
+    results["coeffs"] = coeffs
     results["x3"] = mse_x3
     results["x4"] = mse_x4
     results["x3e"] = mse_x3e
     results["x4e"] = mse_x4e
+    results["XTraining"] = data
+    results["loss"] = loss
     pickle.dump(results, open(os.path.join(args.output, res_save_name(config, model)), 'wb'))
+    
 
 
 def plot_interventions(args, config):
