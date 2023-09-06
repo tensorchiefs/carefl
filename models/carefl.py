@@ -160,7 +160,7 @@ class CAREFL:
         x_from_z_est = self._backward_flow(z_est)  # to compare to x when expectation is taken after pass through flow
         # sanity check: check x_intervention_index == x0_val
         assert (np.abs(x[:, iidx] - x0_val) < 1e-3).all()
-        return x.mean(0).reshape((1, self.dim)), x_from_z_est
+        return x.mean(0).reshape((1, self.dim)), x_from_z_est, x
 
     def predict_counterfactual(self, x_obs, cf_val, iidx=0):
         """
