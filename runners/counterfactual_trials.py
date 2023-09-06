@@ -13,8 +13,9 @@ from models.carefl import CAREFL
 
 def counterfactuals(args, config):
     # we generate the same SEM as in the intervention example
-
-    X_org, _, _ = intervention_sem(n_obs=2500, seed=0, random=False)
+   
+    X_org, coeffs, _ = intervention_sem(n_obs=2500, seed=0, random=False)
+    print(f"** Running the CF toy example **\nCoefficients: {coeffs}")
     (_, _, X3_std, X4_std) = X_org.std(axis=0)
     X = X_org / np.array([1, 1, X3_std, X4_std])
     # fit CAReFl to the data

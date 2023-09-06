@@ -78,8 +78,8 @@ def run_interventions(args, config):
     results["XTraining"] = data
     results["loss"] = loss
     # save results to disk
-    filename = open(os.path.join(args.output, res_save_name(config, model), 'wb'))
-    print("saving results to {}".format(filename))
+    filename = open(os.path.join(args.output, res_save_name(config, model)), 'wb')
+    print("saving results to {}".format(filename.name))
     pickle.dump(results, filename)
     
 

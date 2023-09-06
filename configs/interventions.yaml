@@ -5,7 +5,7 @@ data:
   n_points: 250
   seed: 0
   # only relevant for interventions
-  random: true
+  random: false
   expected: false
   multiplicative: false
 

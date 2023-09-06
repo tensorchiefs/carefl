@@ -12,8 +12,10 @@
             "program": "main.py", //"${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
+            //"args": ["-c", "-n 2500"]
             "args": ["-i", "-n 2500"]
             //"args": ["--plot"]
+            //"args:": ["-c", "-n 2500"], // "-c" for "counter factual experiment" 
         }
     ]
 }
