@@ -77,7 +77,10 @@ def run_interventions(args, config):
     results["x4e"] = mse_x4e
     results["XTraining"] = data
     results["loss"] = loss
-    pickle.dump(results, open(os.path.join(args.output, res_save_name(config, model)), 'wb'))
+    # save results to disk
+    filename = open(os.path.join(args.output, res_save_name(config, model), 'wb'))
+    print("saving results to {}".format(filename))
+    pickle.dump(results, filename)
     
 
 
